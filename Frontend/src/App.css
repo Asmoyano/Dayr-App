@@ -1,3 +1,32 @@
+/* ==========================================================================
+   VARIABLES DE COLOR Y DISEÑO
+   ========================================================================== */
+:root {
+  /* Modo Claro */
+  --accent: #dc2626;                  /* Red 600 */
+  --accent-bg: #fef2f2;               /* Red 50 */
+  --accent-border: #fca5a5;           /* Red 300 */
+  --border: #e2e8f0;                  /* Slate 200 */
+  --text-h: #0f172a;                  /* Slate 900 */
+  --social-bg: #f1f5f9;               /* Slate 100 */
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.dark {
+  /* Modo Oscuro */
+  --accent: #f87171;                  /* Red 400 */
+  --accent-bg: rgba(153, 27, 27, 0.2);/* Red 900 semi-transparente */
+  --accent-border: #991b1b;           /* Red 800 */
+  --border: #1e293b;                  /* Slate 800 */
+  --text-h: #f8fafc;                  /* Slate 50 */
+  --social-bg: #1e293b;               /* Slate 800 */
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================================
+   ESTILOS DE COMPONENTES
+   ========================================================================== */
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;
@@ -5,7 +34,7 @@
   color: var(--accent);
   background: var(--accent-bg);
   border: 2px solid transparent;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, background-color 0.3s, color 0.3s;
   margin-bottom: 24px;
 
   &:hover {
@@ -74,6 +103,7 @@
   display: flex;
   border-top: 1px solid var(--border);
   text-align: left;
+  transition: border-color 0.3s;
 
   & > div {
     flex: 1 1 0;
@@ -97,6 +127,7 @@
 
 #docs {
   border-right: 1px solid var(--border);
+  transition: border-color 0.3s;
 
   @media (max-width: 1024px) {
     border-right: none;
@@ -125,10 +156,11 @@
     align-items: center;
     gap: 8px;
     text-decoration: none;
-    transition: box-shadow 0.3s;
+    transition: box-shadow 0.3s, background-color 0.3s, color 0.3s;
 
     &:hover {
       box-shadow: var(--shadow);
+      color: var(--accent);
     }
     .button-icon {
       height: 18px;
@@ -156,6 +188,8 @@
 #spacer {
   height: 88px;
   border-top: 1px solid var(--border);
+  transition: border-color 0.3s;
+
   @media (max-width: 1024px) {
     height: 48px;
   }
