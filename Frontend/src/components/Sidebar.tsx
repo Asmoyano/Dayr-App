@@ -1,11 +1,30 @@
 import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { type UserRole } from '../types/api.types';
 
 export const Sidebar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, login } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const getLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `p-2.5 rounded-xl font-medium flex items-center gap-3 transition-colors ${
+      isActive
+        ? 'bg-red-600 text-white shadow-sm'
+        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+    }`;
+
+  // Función helper para simular sesión con el objeto User completo
+  const handleSimulatedRole = (rol: UserRole, nombre: string) => {
+    login({
+      id: Math.random().toString(36).substring(7),
+      codigo: `${rol}-01`,
+      nombre: nombre,
+      rol: rol,
+    });
+  };
 
   return (
     <aside
@@ -36,40 +55,50 @@ export const Sidebar: React.FC = () => {
         </button>
       </div>
 
-      {/* MENÚ SEGÚN ROL DE USUARIO */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-2">
-        <div className="text-xs font-semibold text-slate-400 px-3 uppercase tracking-wider">
-          {!isCollapsed && 'Módulos Operativos'}
-        </div>
-
-        {/* Vista Admin */}
-        {(user?.rol === 'ADMIN' || !user) && (
-          <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 font-medium flex items-center gap-3 cursor-pointer">
-            <span>📊</span>
-            {!isCollapsed && <span>Panel General (Admin)</span>}
+      {/* MENÚ NAVEGACIÓN SEGÚN ROL DE USUARIO */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-4">
+        {/* MÓDULO VENTAS */}
+        {(user?.rol === 'ADMIN' || user?.rol === 'VENTAS' || user?.rol === 'JEFE_VENTAS') && (
+          <div className="space-y-1">
+            <div className="text-[10px] font-bold text-slate-400 px-3 uppercase tracking-wider mb-2">
+              {!isCollapsed && 'Ventas Campo'}
+            </div>
+            <NavLink to="/cotizaciones" className={getLinkClass}>
+              <span>📑</span>
+              {!isCollapsed && <span>Cotizaciones</span>}
+            </NavLink>
           </div>
         )}
 
-        {/* Vista Ventas */}
-        {(user?.rol === 'ADMIN' || user?.rol === 'VENTAS') && (
-          <div className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 font-medium flex items-center gap-3 cursor-pointer transition-colors">
-            <span>🛒</span>
-            {!isCollapsed && <span>Gestión de Ventas</span>}
+        {/* MÓDULO ALMACÉN */}
+        {(user?.rol === 'ADMIN' || user?.rol === 'JEFE_ALMACEN') && (
+          <div className="space-y-1">
+            <div className="text-[10px] font-bold text-slate-400 px-3 uppercase tracking-wider mb-2">
+              {!isCollapsed && 'Almacén Central'}
+            </div>
+            <NavLink to="/almacen-registros" className={getLinkClass}>
+              <span>📋</span>
+              {!isCollapsed && <span>Registros y Cierre</span>}
+            </NavLink>
           </div>
         )}
 
-        {/* Vista Almacén */}
-        {(user?.rol === 'ADMIN' || user?.rol === 'ALMACEN') && (
-          <div className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 font-medium flex items-center gap-3 cursor-pointer transition-colors">
-            <span>📦</span>
-            {!isCollapsed && <span>Gestión de Almacén</span>}
+        {/* MÓDULO ADMINISTRACIÓN */}
+        {user?.rol === 'ADMIN' && (
+          <div className="space-y-1">
+            <div className="text-[10px] font-bold text-slate-400 px-3 uppercase tracking-wider mb-2">
+              {!isCollapsed && 'Administración'}
+            </div>
+            <NavLink to="/admin/logs" className={getLinkClass}>
+              <span>⚙️</span>
+              {!isCollapsed && <span>Logs ISO 27001</span>}
+            </NavLink>
           </div>
         )}
       </div>
 
-      {/* FOOTER DEL SIDEBAR: TEMA Y PERFIL DE USUARIO */}
+      {/* FOOTER DEL SIDEBAR: TEMA Y SIMULADOR DE ROLES */}
       <div className="p-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
-        {/* Selector de Modo Claro / Oscuro */}
         <button
           onClick={toggleTheme}
           className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -83,43 +112,41 @@ export const Sidebar: React.FC = () => {
             )}
           </div>
           {!isCollapsed && (
-            <span className="text-xs bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded-full font-mono">
               {theme === 'dark' ? 'ON' : 'OFF'}
             </span>
           )}
         </button>
 
-        {/* Información del Usuario / Cambiar Rol de Prueba */}
         {!isCollapsed && (
           <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 text-xs space-y-2">
-            <div className="font-bold text-slate-800 dark:text-slate-200">
+            <div className="font-bold text-slate-800 dark:text-slate-200 truncate">
               {user?.nombre || 'Sin sesión'}
             </div>
             <div className="text-slate-500 dark:text-slate-400">
-              Rol actual: <span className="font-semibold text-red-600">{user?.rol || 'NINGUNO'}</span>
+              Rol: <span className="font-semibold text-red-600">{user?.rol || 'NINGUNO'}</span>
             </div>
 
-            {/* Selector rápido para probar vistas de diferentes roles */}
             <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
               <span className="text-[10px] text-slate-400 block mb-1">Simular Rol:</span>
-              <div className="flex gap-1">
+              <div className="flex gap-1 flex-wrap">
                 <button
-                  onClick={() => login('ADMIN', 'Adolfo Moyano')}
-                  className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded text-[10px]"
+                  onClick={() => handleSimulatedRole('ADMIN', 'Adolfo Moyano')}
+                  className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded text-[10px] hover:bg-red-600 hover:text-white transition-colors"
                 >
                   Admin
                 </button>
                 <button
-                  onClick={() => login('VENTAS', 'Carlos Ventas')}
-                  className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded text-[10px]"
+                  onClick={() => handleSimulatedRole('JEFE_ALMACEN', 'Jefe Almacén')}
+                  className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded text-[10px] hover:bg-red-600 hover:text-white transition-colors"
                 >
-                  Ventas
+                  J. Almacén
                 </button>
                 <button
-                  onClick={() => login('ALMACEN', 'Juan Almacén')}
-                  className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded text-[10px]"
+                  onClick={() => handleSimulatedRole('VENTAS', 'Vendedor Campo')}
+                  className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded text-[10px] hover:bg-red-600 hover:text-white transition-colors"
                 >
-                  Almacén
+                  Ventas
                 </button>
               </div>
             </div>
@@ -129,3 +156,5 @@ export const Sidebar: React.FC = () => {
     </aside>
   );
 };
+
+export default Sidebar;

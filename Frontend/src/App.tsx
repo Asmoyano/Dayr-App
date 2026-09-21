@@ -1,14 +1,17 @@
 import './App.css';
+import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
-import MainLayout from './components/MainLayout';
+import { AppRouter } from './routes/AppRouter';
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <MainLayout />
-      </AuthProvider>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppRouter />
+        </AuthProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 }

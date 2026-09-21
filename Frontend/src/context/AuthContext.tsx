@@ -1,15 +1,10 @@
 import React, { createContext, useContext, useState } from 'react';
-
-export type UserRole = 'ADMIN' | 'VENTAS' | 'ALMACEN' | null;
-
-interface User {
-  nombre: string;
-  rol: UserRole;
-}
+import { type User } from '../types/api.types';
 
 interface AuthContextType {
   user: User | null;
-  login: (rol: UserRole, nombre: string) => void;
+  isAuthenticated: boolean;
+  login: (userData: User) => void;
   logout: () => void;
 }
 
@@ -18,11 +13,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     // Sesión por defecto de prueba (puedes iniciar en null para probar el Login)
-    return { nombre: 'Adolfo Moyano', rol: 'ADMIN' };
+    return { id: '1', codigo: 'ADM-01', nombre: 'Adolfo Moyano', rol: 'ADMIN' };
   });
 
-  const login = (rol: UserRole, nombre: string) => {
-    setUser({ nombre, rol });
+  const login = (userData: User) => {
+    setUser(userData);
   };
 
   const logout = () => {
@@ -30,7 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
