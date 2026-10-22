@@ -1,6 +1,27 @@
-@Backend_HostAddress = http://localhost:5292
+@Backend_HostAddress = https://localhost:7216
 
-GET {{Backend_HostAddress}}/weatherforecast/
+### Salud del proceso (no valida conexión ERP)
+GET {{Backend_HostAddress}}/health
 Accept: application/json
 
-###
+### Catálogo ficticio (solo Development)
+GET {{Backend_HostAddress}}/v1/inventory/products
+Accept: application/json
+
+### Documento OpenAPI (solo Development; no es Swagger UI)
+GET {{Backend_HostAddress}}/openapi/v1.json
+Accept: application/json
+
+### Preflight del frontend oficial local
+OPTIONS {{Backend_HostAddress}}/v1/inventory/products
+Origin: http://localhost:5173
+Access-Control-Request-Method: GET
+Access-Control-Request-Headers: content-type,authorization
+
+### Error estructurado 404
+GET {{Backend_HostAddress}}/ruta-inexistente
+Accept: application/json
+
+### Ejemplo original conservado
+GET {{Backend_HostAddress}}/weatherforecast
+Accept: application/json
