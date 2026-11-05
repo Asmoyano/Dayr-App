@@ -3,6 +3,7 @@ SET NOCOUNT ON;
 IF DB_NAME() <> N'DAYR_PWA_QUOTE_DEV'
     THROW 51000, 'Select the isolated DAYR_PWA_QUOTE_DEV database.', 1;
 BEGIN TRANSACTION;
+IF OBJECT_ID('dbo.Pasillos', 'U') IS NOT NULL THROW 51003, 'Revert 003 first.', 1;
 IF OBJECT_ID('dbo.ConfiguracionCotizacion', 'U') IS NOT NULL THROW 51003, 'Revert 002 first.', 1;
 IF EXISTS (SELECT 1 FROM dbo.GuiaDetalles WITH (TABLOCKX, HOLDLOCK)) THROW 51002, 'Rollback refused: GuiaDetalles contains data.', 1;
 IF EXISTS (SELECT 1 FROM dbo.Guias WITH (TABLOCKX, HOLDLOCK)) THROW 51002, 'Rollback refused: Guias contains data.', 1;

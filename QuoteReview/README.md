@@ -65,3 +65,26 @@ El SQL fuente contiene DDL y una columna PasswordHash, sin valores de credencial
 - TypeScript: comprobación estricta del módulo IndexedDB. Pendiente validación en navegador del flujo de Ventas, persistencia tras recarga y concurrencia entre pestañas.
 
 La compilación del proyecto Backend.csproj de esta rama terminó con 0 errores y 0 advertencias. La búsqueda de firmas de credenciales en los archivos de texto versionados revisados del HEAD base de Dayr-App tampoco produjo coincidencias.
+
+## Datos ficticios de volumen medio-alto
+
+Sobre una base de desarrollo con 001 y 002, aplicar 003-aisles.up.sql y luego
+seed-medium-large.sql. Para verificar, ejecutar test-seed-medium-large.sql y
+test-catalog.sql. Usar la misma conexión LocalDB y sqlcmd -b -f 65001. La
+carga v1 es transaccional y una segunda ejecución omite el lote ya cargado.
+
+El modelo usa un pasillo por artículo y almacén, vinculado a la existencia
+de ese artículo. Cada encargado tiene un pasillo por almacén. El mismo
+pasillo puede tener varios encargados. Las claves foráneas impiden vincular
+una ubicación o un encargado a un pasillo de otro almacén. La asignación
+es operativa y está separada de los permisos comerciales de cotización.
+Si más adelante se usa para filtrar permisos de inventario, validar también
+que el usuario esté activo y tenga el rol requerido.
+
+La carga genera 2 400 SKU sintéticos distribuidos en 16 grupos de limpieza,
+con variantes de modelo, color y presentación. Incluye 480 clientes, 24
+vendedores, 7 200 precios en tres listas, dos almacenes con 16 pasillos
+cada uno, 4 800 existencias con ubicación y 32 asignaciones de encargados.
+Los encargados ficticios son usuarios deshabilitados. Los sujetos de
+vendedor usan un emisor ficticio que ningún entorno debe confiar. Los
+stock, nombres, precios y asignaciones son simulados y no provienen del ERP.
