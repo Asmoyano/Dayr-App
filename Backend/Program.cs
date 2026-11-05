@@ -1,6 +1,9 @@
 using System.Diagnostics;
 using Backend.Services;
+using Backend.Authentication;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,8 +34,34 @@ builder.Services.AddCors(options => options.AddPolicy(corsPolicy, policy => poli
     .WithExposedHeaders("X-Correlation-ID")));
 builder.Services.AddHttpsRedirection(options =>
     options.HttpsPort = builder.Configuration.GetValue<int?>("HttpsRedirection:HttpsPort"));
+builder.Services.AddAuthentication()
+    .AddScheme<AuthenticationSchemeOptions, DevQuoteAuthentication>(DevQuoteAuthentication.SchemeName, _ => { });
+builder.Services.AddAuthorizationBuilder().AddPolicy("DayrQuoteCatalog", policy => policy
+    .AddAuthenticationSchemes(DevQuoteAuthentication.SchemeName).RequireAuthenticatedUser());
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document, _, _) =>
+{
+    const string scheme = "DayrQuoteBearer";
+    document.Components ??= new OpenApiComponents();
+    document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+    document.Components.SecuritySchemes[scheme] = new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        Description = "Token local del vendedor para Development."
+    };
+
+    foreach (var path in document.Paths.Where(path => path.Key.StartsWith("/v1/quote-catalog/", StringComparison.Ordinal)))
+    foreach (var operation in path.Value.Operations!.Values)
+    {
+        operation.Security = [new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference(scheme, document)] = []
+        }];
+    }
+
+    return Task.CompletedTask;
+}));
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
     context.ProblemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier);
 builder.Services.AddSingleton<IProductCatalog, SyntheticProductCatalog>();
@@ -78,6 +107,7 @@ app.UseStatusCodePages(async statusContext =>
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors(corsPolicy);
+app.UseAuthentication();
 app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
